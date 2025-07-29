@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proyectos y Donantes - Organización</title>
+    <link rel="stylesheet" href="formularios.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Organización Sin Fines de Lucro</h1>
+            <p>Sistema de Gestión de Proyectos y Donantes</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('proyectos')">📋 Gestión de Proyectos</button>
+            <button class="nav-tab" onclick="showTab('donantes')">👥 Gestión de Donantes</button>
+            <button class="nav-tab" onclick="showTab('consultas')">📊 Consultas y Reportes</button>
+        </div>
+        
+        <!-- TAB: PROYECTOS -->
+        <div id="proyectos" class="tab-content active">
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>🆕 Registrar Nuevo Proyecto</h3>
+                    <form id="formProyecto" action="procesar_proyecto.php" method="POST">
+                        <div class="form-group">
+                            <label for="nombre_proyecto">Nombre del Proyecto:</label>
+                            <input type="text" id="nombre_proyecto" name="nombre_proyecto" required maxlength="200">
+                            <div class="error" id="error_nombre_proyecto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="descripcion_proyecto">Descripción:</label>
+                            <textarea id="descripcion_proyecto" name="descripcion_proyecto" required maxlength="1000"></textarea>
+                            <div class="error" id="error_descripcion_proyecto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="presupuesto">Presupuesto ($):</label>
+                            <input type="number" id="presupuesto" name="presupuesto" min="1000" max="1000000" step="0.01" required>
+                            <div class="error" id="error_presupuesto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fecha_inicio">Fecha de Inicio:</label>
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+                            <div class="error" id="error_fecha_inicio"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fecha_fin">Fecha de Fin:</label>
+                            <input type="date" id="fecha_fin" name="fecha_fin" required>
+                            <div class="error" id="error_fecha_fin"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn" data-original-text="💾 Registrar Proyecto">💾 Registrar Proyecto</button>
+                    </form>
+                </div>
+                
+                <div class="form-card">
+                    <h3>📋 Proyectos Registrados</h3>
+                    <div id="listaProyectos">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando proyectos...</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="loadProyectos()">🔄 Actualizar Lista</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: DONANTES -->
+        <div id="donantes" class="tab-content">
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>👤 Registrar Nuevo Donante</h3>
+                    <form id="formDonante" action="procesar_donante.php" method="POST">
+                        <div class="form-group">
+                            <label for="nombre_donante">Nombre Completo:</label>
+                            <input type="text" id="nombre_donante" name="nombre_donante" required maxlength="150">
+                            <div class="error" id="error_nombre_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email_donante">Email:</label>
+                            <input type="email" id="email_donante" name="email_donante" required maxlength="100">
+                            <div class="error" id="error_email_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="direccion_donante">Dirección:</label>
+                            <input type="text" id="direccion_donante" name="direccion_donante" maxlength="300">
+                            <div class="error" id="error_direccion_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefono_donante">Teléfono:</label>
+                            <input type="tel" id="telefono_donante" name="telefono_donante" maxlength="20" pattern="[+]?[0-9\s\-\(\)]+">
+                            <div class="error" id="error_telefono_donante"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn" data-original-text="👥 Registrar Donante">👥 Registrar Donante</button>
+                    </form>
+                </div>
+                
+                <div class="form-card">
+                    <h3>👥 Donantes Registrados</h3>
+                    <div id="listaDonantes">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando donantes...</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="loadDonantes()">🔄 Actualizar Lista</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: CONSULTAS -->
+        <div id="consultas" class="tab-content">
+            <div class="form-card">
+                <h3>📊 Consultas y Reportes</h3>
+                <div class="btn-group">
+                    <button class="btn" onclick="consultarTodosProyectos()">📋 Ver Todos los Proyectos</button>
+                    <button class="btn" onclick="consultarTodosDonantes()">👥 Ver Todos los Donantes</button>
+                    <button class="btn" onclick="consultarDonaciones()">💰 Ver Todas las Donaciones</button>
+                    <button class="btn" onclick="consultarProyectosPopulares()">🏆 Proyectos con Más Donaciones</button>
+                </div>
+                
+                <div id="resultadosConsulta" class="data-display" style="display: none;">
+                    <h4>Resultados de la Consulta</h4>
+                    <div id="contenidoConsulta"></div>
+                </div>
+                
+                <div class="info-message" style="margin-top: 20px;">
+                    <strong>💡 Información:</strong> Las consultas avanzadas con GROUP BY, HAVING y análisis estadísticos 
+                    están disponibles en la sección especializada de reportes.
+                    <br><br>
+                    <a href="consultas_avanzadas.php" class="btn" style="width: auto; margin-top: 10px;">
+                        📊 Ir a Consultas Avanzadas MySQL
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NAVEGACIÓN INFERIOR -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 2px solid #e9ecef;">
+            <div class="btn-group">
+                <a href="index.php" class="btn">🏠 Volver al Sistema Principal</a>
+                <a href="consultas_avanzadas.php" class="btn">📊 Ver Consultas Avanzadas</a>
+                <a href="conexion.php" class="btn">🔗 Configurar Base de Datos</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="formularios.js"></script>
+</body>
+</html> solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .data-display {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .data-display h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Organización Sin Fines de Lucro</h1>
+            <p>Sistema de Gestión de Proyectos y Donantes</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('proyectos')">📋 Gestión de Proyectos</button>
+            <button class="nav-tab" onclick="showTab('donantes')">👥 Gestión de Donantes</button>
+            <button class="nav-tab" onclick="showTab('consultas')">📊 Consultas y Reportes</button>
+        </div>
+        
+        <!-- TAB: PROYECTOS -->
+        <div id="proyectos" class="tab-content active">
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>🆕 Registrar Nuevo Proyecto</h3>
+                    <form id="formProyecto" action="procesar_proyecto.php" method="POST" onsubmit="return validarProyecto()">
+                        <div class="form-group">
+                            <label for="nombre_proyecto">Nombre del Proyecto:</label>
+                            <input type="text" id="nombre_proyecto" name="nombre_proyecto" required maxlength="200">
+                            <div class="error" id="error_nombre_proyecto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="descripcion_proyecto">Descripción:</label>
+                            <textarea id="descripcion_proyecto" name="descripcion_proyecto" required maxlength="1000"></textarea>
+                            <div class="error" id="error_descripcion_proyecto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="presupuesto">Presupuesto ($):</label>
+                            <input type="number" id="presupuesto" name="presupuesto" min="1000" max="1000000" step="0.01" required>
+                            <div class="error" id="error_presupuesto"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fecha_inicio">Fecha de Inicio:</label>
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+                            <div class="error" id="error_fecha_inicio"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fecha_fin">Fecha de Fin:</label>
+                            <input type="date" id="fecha_fin" name="fecha_fin" required>
+                            <div class="error" id="error_fecha_fin"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn">💾 Registrar Proyecto</button>
+                    </form>
+                </div>
+                
+                <div class="form-card">
+                    <h3>📋 Proyectos Registrados</h3>
+                    <div id="listaProyectos">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando proyectos...</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="cargarProyectos()">🔄 Actualizar Lista</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: DONANTES -->
+        <div id="donantes" class="tab-content">
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>👤 Registrar Nuevo Donante</h3>
+                    <form id="formDonante" action="procesar_donante.php" method="POST" onsubmit="return validarDonante()">
+                        <div class="form-group">
+                            <label for="nombre_donante">Nombre Completo:</label>
+                            <input type="text" id="nombre_donante" name="nombre_donante" required maxlength="150">
+                            <div class="error" id="error_nombre_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email_donante">Email:</label>
+                            <input type="email" id="email_donante" name="email_donante" required maxlength="100">
+                            <div class="error" id="error_email_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="direccion_donante">Dirección:</label>
+                            <input type="text" id="direccion_donante" name="direccion_donante" maxlength="300">
+                            <div class="error" id="error_direccion_donante"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefono_donante">Teléfono:</label>
+                            <input type="tel" id="telefono_donante" name="telefono_donante" maxlength="20" pattern="[+]?[0-9\s\-\(\)]+">
+                            <div class="error" id="error_telefono_donante"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn">👥 Registrar Donante</button>
+                    </form>
+                </div>
+                
+                <div class="form-card">
+                    <h3>👥 Donantes Registrados</h3>
+                    <div id="listaDonantes">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando donantes...</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="cargarDonantes()">🔄 Actualizar Lista</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: CONSULTAS -->
+        <div id="consultas" class="tab-content">
+            <div class="form-card">
+                <h3>📊 Consultas y Reportes</h3>
+                <div class="form-grid">
+                    <button class="btn" onclick="consultarTodosProyectos()">📋 Ver Todos los Proyectos</button>
+                    <button class="btn" onclick="consultarTodosDonantes()">👥 Ver Todos los Donantes</button>
+                    <button class="btn" onclick="consultarDonaciones()">💰 Ver Todas las Donaciones</button>
+                    <button class="btn" onclick="consultarProyectosPopulares()">🏆 Proyectos con Más Donaciones</button>
+                </div>
+                
+                <div id="resultadosConsulta" class="data-display" style="display: none;">
+                    <h4>Resultados de la Consulta</h4>
+                    <div id="contenidoConsulta"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- NAVEGACIÓN INFERIOR -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 2px solid #e9ecef;">
+            <div class="btn-group">
+                <a href="index.php" class="btn">🏠 Volver al Sistema Principal</a>
+                <a href="consultas_avanzadas.php" class="btn">📊 Ver Consultas Avanzadas</a>
+                <a href="conexion.php" class="btn">🔗 Configurar Base de Datos</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="formularios.js"></script>
+</body>
+</html>
